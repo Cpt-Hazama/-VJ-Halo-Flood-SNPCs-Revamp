@@ -1,0 +1,14 @@
+"VertexlitGeneric"
+{
+	"$basetexture" "models/cpthazama/halo3/flood_muffin/flood_muffin"
+	"$bumpmap" "models/cpthazama/halo3/flood_muffin/flood_muffin_n"
+	"$AmbientOcclusion"		"1"
+	
+	$nodecal 1
+	"$phongexponenttexture" "models/cpthazama/exponent"
+	"$phong"				"1"
+	"$phongexponent"		"15"
+	"$phongboost"			"75"
+	"$phongfresnelranges"	"[0.67 0.83 1]"
+	"$phongalbedotint"		"1"
+}

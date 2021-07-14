@@ -1,0 +1,7 @@
+"VertexlitGeneric"
+{
+	"$basetexture" "models/cpthazama/halo3/weapons/display"
+	$selfillum 1
+    
+  "$nodecal" 1
+}

@@ -1,0 +1,14 @@
+"VertexlitGeneric"
+{
+	"$basetexture" 			"models/cpthazama/halowars2/seeder/body"
+	"$bumpmap" 				"models/cpthazama/halowars2/seeder/body_n"
+	//"$phongexponenttexture" "models/cpthazama/halowars2/seeder/body_e"
+	"$phongexponenttexture" "vj_base/exponent"
+
+	"$nodecal" 				"1"
+	"$phong"				"1"
+	"$phongexponent"		"30"
+	"$phongboost"			"50"
+	"$phongfresnelranges"	"[0.67 0.83 1]"
+	"$phongalbedotint"		"1"
+}

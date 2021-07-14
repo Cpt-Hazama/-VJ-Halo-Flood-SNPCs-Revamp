@@ -1,0 +1,12 @@
+"VertexLitGeneric"
+{
+   "$basetexture" "models\Halo\Weapons\shotgun"
+   "$bumpmap" "models\Halo\Weapons\shotgun_bump"
+
+	"$phongexponenttexture" "models/cpthazama/exponent"
+	"$phong"				"1"
+	"$phongexponent"		"15"
+	"$phongboost"			"35"
+	"$phongfresnelranges"	"[0.67 0.83 1]"
+	"$phongalbedotint"		"1"
+}

@@ -1,0 +1,32 @@
+"VertexlitGeneric"
+{
+	"$basetexture" "models/cpthazama/halo_classic/2/flood_armor"
+	"$bumpmap" "models/cpthazama/halo_classic/2/flood_armor_n"
+	
+	"$color2"				"[0.9 0.9 0.9]"
+	"$AmbientOcclusion"		"1"
+	
+	"$nodecal"			"1"
+	"$phongexponenttexture" "models/cpthazama/exponent"
+	"$phong"				"1"
+	"$phongexponent"		"8"
+	"$phongboost"			"65"
+	"$phongfresnelranges"	"[0.67 0.83 1]"
+	"$phongalbedotint"		"1"
+
+	"$phongalbedotint" 			"1"
+	"$phongexponenttexture" 		"models/cpthazama/halo3/exp_255"
+	"$phongwarptexture" 			"models/cpthazama/halo3/phongwarp_metal2"
+
+	"$blendtintbybasealpha" 		"1"
+	"$blendtintcoloroverbase" 		"0"
+
+	"$envmap"						"env_cubemap"
+	"$envmaptint"					"[0.25 0.25 0.9]"	
+
+	"$rimlight"			"1"
+	"$rimlightexponent"			"2"
+	"$rimlightboost"			"0.2"
+
+	"$lightwarptexture"				"models/cpthazama/halo3/shared/cov_distort"
+}

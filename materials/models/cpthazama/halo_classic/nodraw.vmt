@@ -1,0 +1,6 @@
+"UnLitGeneric"
+{
+	"$baseTexture" "models/cpthazama/halo_classic/nodraw"
+	"$alphatest" "1"
+	"$nodecal" "1"
+}

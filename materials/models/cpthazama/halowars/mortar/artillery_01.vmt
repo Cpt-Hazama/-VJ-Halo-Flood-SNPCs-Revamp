@@ -1,0 +1,14 @@
+"VertexlitGeneric"
+{
+	"$basetexture" "models/cpthazama/halowars/mortar/artillery_01"
+	"$bumpmap" "models/cpthazama/halowars/mortar/artillery_01_n"
+	"$AmbientOcclusion"		"1"
+
+	$nodecal 1
+	"$phongexponenttexture" "models/cpthazama/exponent"
+	"$phong"				"1"
+	"$phongexponent"		"25"
+	"$phongboost"			"120"
+	"$phongfresnelranges"	"[0.67 0.83 1]"
+	"$phongalbedotint"		"1"
+}

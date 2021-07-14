@@ -1,0 +1,27 @@
+"VertexlitGeneric"
+{
+	"$basetexture" 			"models/cpthazama/halowars2/abomination/body"
+	"$bumpmap" 				"models/cpthazama/halowars2/abomination/body_n"
+	//"$phongexponenttexture" "models/cpthazama/halowars2/abomination/body_e"
+	"$phongexponenttexture" "vj_base/exponent"
+	"$selfillummask" 		"models/cpthazama/halowars2/abomination/body_g"
+
+	"$nodecal" 				"1"
+	"$selfillum" 			"1"
+	"$phong"				"1"
+	"$phongexponent"		"35"
+	"$phongboost"			"80"
+	"$phongfresnelranges"	"[0.67 0.83 1]"
+	"$phongalbedotint"		"1"
+	
+	"Proxies"
+	{
+		"Sine"
+		{
+			"resultVar"		"$selfillumtint"
+			"sineperiod" 	"3"
+			"sinemin"		"0.6"
+			"sinemax"		"5"
+		}
+	}
+}
