@@ -1,15 +1,15 @@
 AddCSLuaFile("shared.lua")
 include('shared.lua')
+include("vj_base/addons/vj_haloflood_combat.lua")
 /*-----------------------------------------------
 	*** Copyright (c) 2012-2021 by DrVrej, All rights reserved. ***
 	No parts of this code or any of its contents may be reproduced, copied, modified or adapted,
 	without the prior written consent of the author, unless otherwise indicated for stand-alone materials.
 -----------------------------------------------*/
 ENT.Model = {"models/cpthazama/halo3/flood_human.mdl"}
-ENT.StartHealth = 125
+ENT.StartHealth = 100
 ENT.HullType = HULL_HUMAN
-ENT.EntitiesToNoCollide = {"npc_vj_flood_infection"}
-ENT.MaxJumpLegalDistance = VJ_Set(1200,2000)
+ENT.EntitiesToNoCollide = {"npc_vj_flood_infection","npc_vj_hcf_infection","npc_vj_hcf_infection2"}
 ---------------------------------------------------------------------------------------------------------------------------------------------
 ENT.VJ_NPC_Class = {"CLASS_FLOOD","CLASS_PARASITE"}
 
@@ -63,43 +63,106 @@ ENT.SoundTbl_FootStep = {
 	"vj_halo3flood/combatform/humanform_longmove14.wav",
 	"vj_halo3flood/combatform/humanform_longmove15.wav"
 }
-ENT.SoundTbl_MeleeAttackMiss = {
-	"vj_halo3flood/shared/melee_swish1.wav",
-	"vj_halo3flood/shared/melee_swish3.wav",
-	"vj_halo3flood/shared/melee_swish5.wav",
-	"vj_halo3flood/shared/melee_swish6.wav",
-	"vj_halo3flood/shared/melee_swish7.wav",
-	"vj_halo3flood/shared/melee_swish8.wav",
+ENT.SoundTbl_Idle = {"vj_halo3flood/vo/invsgt10.mp3","vj_halo3flood/vo/invsgt1.mp3","vj_halo3flood/vo/invsgt2.mp3","vj_halo3flood/vo/invsgt5.mp3","vj_halo3flood/vo/invsgt6.mp3","vj_halo3flood/vo/invsgt8.mp3","vj_halo3flood/vo/invsgt9.mp3","vj_halo3flood/vo/invsgt_fail1.mp3","vj_halo3flood/vo/invsgt_fail10.mp3","vj_halo3flood/vo/invsgt_fail2.mp3","vj_halo3flood/vo/invsgt_fail3.mp3","vj_halo3flood/vo/invsgt_fail5.mp3","vj_halo3flood/vo/invsgt_fail7.mp3","vj_halo3flood/vo/invsgt_fail8.mp3","vj_halo3flood/vo/invsgt_fail9.mp3","vj_halo3flood/combatform/pain1.wav","vj_halo3flood/combatform/pain2.wav","vj_halo3flood/combatform/pain3.wav","vj_halo3flood/combatform/pain4.wav","vj_halo3flood/combatform/pain5.wav","vj_halo3flood/combatform/pain6.wav","vj_halo3flood/combatform/pain7.wav","vj_halo3flood/combatform/pain8.wav","vj_halo3flood/combatform/pain9.wav","vj_halo3flood/combatform/pain10.wav","vj_halo3flood/combatform/pain11.wav","vj_halo3flood/combatform/pain12.wav","vj_halo3flood/combatform/pain13.wav","vj_halo3flood/combatform/pain14.wav","vj_halo3flood/combatform/pain15.wav","vj_halo3flood/combatform/pain16.wav","vj_halo3flood/combatform/pain17.wav"}
+ENT.SoundTbl_Alert = {
+	"vj_halo3flood/combatform/spot1.wav",
+	"vj_halo3flood/combatform/scream1.wav",
+	"vj_halo3flood/combatform/scream2.wav",
+	"vj_halo3flood/combatform/scream3.wav",
+	"vj_halo3flood/combatform/scream4.wav",
+	"vj_halo3flood/combatform/scream5.wav",
+	"vj_halo3flood/combatform/scream6.wav",
+	"vj_halo3flood/combatform/scream7.wav",
+	"vj_halo3flood/combatform/scream8.wav",
+	"vj_halo3flood/combatform/scream9.wav",
+	"vj_halo3flood/vo/foundfoe10.mp3",
+	"vj_halo3flood/vo/foundfoe11.mp3",
+	"vj_halo3flood/vo/foundfoe12.mp3",
+	"vj_halo3flood/vo/foundfoe1.mp3",
+	"vj_halo3flood/vo/foundfoe2.mp3",
+	"vj_halo3flood/vo/foundfoe3.mp3",
+	"vj_halo3flood/vo/foundfoe4.mp3",
+	"vj_halo3flood/vo/foundfoe5.mp3",
+	"vj_halo3flood/vo/foundfoe6.mp3",
+	"vj_halo3flood/vo/foundfoe7.mp3",
+	"vj_halo3flood/vo/foundfoe8.mp3",
+	"vj_halo3flood/vo/foundfoe9.mp3",
 }
-ENT.SoundTbl_Impact = {
-	"vj_halo3flood/damage01.mp3",
-	"vj_halo3flood/damage02.mp3",
-	"vj_halo3flood/damage03.mp3",
+ENT.SoundTbl_CombatIdle = {
+	"vj_halo3flood/vo/thrtn1.mp3",
+	"vj_halo3flood/vo/thrtn2.mp3",
+	"vj_halo3flood/vo/thrtn3.mp3",
+	"vj_halo3flood/vo/thrtn4.mp3",
+	"vj_halo3flood/vo/thrtn5.mp3",
+	"vj_halo3flood/vo/thrtn6.mp3",
+	"vj_halo3flood/vo/thrtn7.mp3",
+	"vj_halo3flood/vo/thrtn8.mp3",
+	"vj_halo3flood/vo/thrtn9.mp3",
+	"vj_halo3flood/vo/thrtn10.mp3",
+	"vj_halo3flood/vo/thrtn11.mp3",
+	"vj_halo3flood/vo/crs1.mp3",
+	"vj_halo3flood/vo/crs2.mp3",
+	"vj_halo3flood/vo/crs3.mp3",
+	"vj_halo3flood/vo/crs4.mp3",
+	"vj_halo3flood/vo/crs5.mp3",
+	"vj_halo3flood/vo/crs6.mp3",
+	"vj_halo3flood/vo/crs7.mp3",
+	"vj_halo3flood/vo/strk11.mp3",
+	"vj_halo3flood/vo/strk10.mp3",
+	"vj_halo3flood/vo/strk1.mp3",
+	"vj_halo3flood/vo/strk2.mp3",
+	"vj_halo3flood/vo/strk3.mp3",
+	"vj_halo3flood/vo/strk4.mp3",
+	"vj_halo3flood/vo/strk5.mp3",
+	"vj_halo3flood/vo/strk6.mp3",
+	"vj_halo3flood/vo/strk7.mp3",
+	"vj_halo3flood/vo/strk8.mp3",
+	"vj_halo3flood/vo/strk9.mp3",
+	"vj_halo3flood/vo/seefoe1.mp3",
+	"vj_halo3flood/vo/seefoe2.mp3",
+	"vj_halo3flood/vo/seefoe3.mp3",
+	"vj_halo3flood/vo/seefoe4.mp3",
+	"vj_halo3flood/vo/seefoe5.mp3",
+	"vj_halo3flood/vo/seefoe6.mp3",
+	"vj_halo3flood/vo/seefoe7.mp3",
+	"vj_halo3flood/vo/seefoe8.mp3",
 }
+ENT.SoundTbl_CallForHelp = {
+	"vj_halo3flood/vo/newordr_charge1.mp3",
+	"vj_halo3flood/vo/newordr_charge2.mp3",
+	"vj_halo3flood/vo/newordr_charge3.mp3",
+	"vj_halo3flood/vo/newordr_charge4.mp3",
+}
+ENT.SoundTbl_OnKilledEnemy = {
+	"vj_halo3flood/vo/chr_deadmc1.mp3",
+	"vj_halo3flood/vo/chr_deadmc2.mp3",
+	"vj_halo3flood/vo/chr_deadmc3.mp3",
+	"vj_halo3flood/vo/chr_deadmc4.mp3",
+	"vj_halo3flood/vo/chr_deadmc5.mp3",
+	"vj_halo3flood/vo/chr_deadmc6.mp3",
+	"vj_halo3flood/vo/chr_deadmc7.mp3",
+	"vj_halo3flood/vo/chr_deadmc8.mp3",
+	"vj_halo3flood/vo/chr_deadmc9.mp3",
+	"vj_halo3flood/vo/chr_deadmc10.mp3",
+}
+ENT.SoundTbl_AllyDeath = {
+	"vj_halo3flood/vo/lmnt_deadally1.mp3",
+	"vj_halo3flood/vo/lmnt_deadally3.mp3",
+	"vj_halo3flood/vo/lmnt_deadally4.mp3",
+	"vj_halo3flood/vo/lmnt_deadally5.mp3",
+	"vj_halo3flood/vo/lmnt_deadally6.mp3",
+	"vj_halo3flood/vo/lmnt_deadally7.mp3",
+}
+ENT.SoundTbl_BeforeMeleeAttack = {"vj_halo3flood/combatform/attack1.wav","vj_halo3flood/combatform/attack2.wav","vj_halo3flood/combatform/attack3.wav","vj_halo3flood/combatform/attack4.wav","vj_halo3flood/combatform/attack5.wav","vj_halo3flood/combatform/attack6.wav"}
+ENT.SoundTbl_Pain = {"vj_halo3flood/vo/dth_hdsht2.mp3","vj_halo3flood/vo/dth_hdsht3.mp3","vj_halo3flood/vo/dth_hdsht4.mp3","vj_halo3flood/vo/dth_hdsth1.mp3","vj_halo3flood/combatform/pain1.wav","vj_halo3flood/combatform/pain2.wav","vj_halo3flood/combatform/pain3.wav","vj_halo3flood/combatform/pain4.wav","vj_halo3flood/combatform/pain5.wav","vj_halo3flood/combatform/pain6.wav","vj_halo3flood/combatform/pain7.wav","vj_halo3flood/combatform/pain8.wav","vj_halo3flood/combatform/pain9.wav","vj_halo3flood/combatform/pain10.wav","vj_halo3flood/combatform/pain11.wav","vj_halo3flood/combatform/pain12.wav","vj_halo3flood/combatform/pain13.wav","vj_halo3flood/combatform/pain14.wav","vj_halo3flood/combatform/pain15.wav","vj_halo3flood/combatform/pain16.wav","vj_halo3flood/combatform/pain17.wav"}
+ENT.SoundTbl_Death = {"vj_halo3flood/combatform/death1.wav","vj_halo3flood/combatform/death2.wav","vj_halo3flood/combatform/death3.wav","vj_halo3flood/combatform/death4wav","vj_halo3flood/combatform/death5.wav","vj_halo3flood/combatform/death6.wav","vj_halo3flood/combatform/death7.wav","vj_halo3flood/combatform/death8.wav","vj_halo3flood/combatform/death9.wav","vj_halo3flood/combatform/death10.wav","vj_halo3flood/combatform/death11.wav","vj_halo3flood/combatform/death12.wav"}
 ---------------------------------------------------------------------------------------------------------------------------------------------
-function ENT:CustomOnInitialize()
+function ENT:OnInit()
 	self:SetCollisionBounds(Vector(15,15,60),Vector(-15,-15,0))
-
-	timer.Simple(VJ_GetVarInt("vj_halo_developmenttime"),function()
-		if IsValid(self) then
-			local flood = ents.Create("npc_vj_flood_carrier")
-			if !IsValid(flood) then return end -- Something happened? Just keep the combat form...
-			flood:SetPos(self:GetPos())
-			flood:SetAngles(self:GetAngles())
-			flood:Spawn()
-			undo.ReplaceEntity(self,flood)
-			for i = 0, self:GetBoneCount() -1 do
-				local bonePos = self:GetBonePosition(i)
-				ParticleEffect("cpt_blood_flood",bonePos,VJ_Ang0,nil)
-				VJ_PlaySound(3,bonePos,{"vj_gib/gibbing1.wav","vj_gib/gibbing2.wav","vj_gib/gibbing3.wav"},55)
-			end
-			VJ_Remove(self)
-		end
-	end)
 end
 ---------------------------------------------------------------------------------------------------------------------------------------------
 function ENT:CustomOnAcceptInput(key,activator,caller,data)
-	Entity(1):ChatPrint(key)
+	-- Entity(1):ChatPrint(key)
 	if key == "event_emit step" then
 		VJ_CreateStepSound(self,32,self.SoundTbl_FootStep,true)
 	elseif key == "event_mattack" then
@@ -113,12 +176,8 @@ function ENT:CustomOnAcceptInput(key,activator,caller,data)
 	end
 end
 ---------------------------------------------------------------------------------------------------------------------------------------------
-function ENT:CustomOnThink()
-	local ent = self:GetEnemy()
-	if IsValid(ent) then
-		local dist = ent:GetPos():Distance(self:GetPos())
+function ENT:OnThink()
 
-	end
 end
 /*-----------------------------------------------
 	*** Copyright (c) 2012-2021 by DrVrej, All rights reserved. ***

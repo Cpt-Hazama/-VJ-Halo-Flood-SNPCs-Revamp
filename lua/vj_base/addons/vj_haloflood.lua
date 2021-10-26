@@ -9,12 +9,52 @@ local NPC = FindMetaTable("NPC")
 local SWEP = FindMetaTable("Weapon")
 local PLY = FindMetaTable("Player")
 ---------------------------------------------------------------------------------------------------------------------------------------------
+function VJ_FloodInfection(ent,inflictor,attacker)
+	local isRagdoll = !(ent:IsNPC() or ent:IsPlayer())
+
+	local flood = ents.Create("npc_vj_flood_combat")
+	flood:SetPos(ent:GetPos())
+	flood:SetAngles(ent:GetAngles())
+	flood:Spawn()
+
+	local wep = !isRagdoll && ent:GetActiveWeapon()
+	if IsValid(wep) && wep.IsVJBaseWeapon then
+		flood:Give(wep:GetClass())
+	end
+
+	local foundBone = (ent:LookupBone("ValveBiped.Bip01_Pelvis") != nil)
+	if foundBone then
+		VJ_CreateFloodMerge(3,flood,ent:GetModel(),ent:GetSkin(),ent)
+		flood.GibOnDeathDamagesTable = {"All"}
+	end
+
+	if isRagdoll then
+		timer.Simple(0,function()
+			if IsValid(flood) then
+				flood:VJ_ACT_PLAYACTIVITY(ACT_ROLL_RIGHT,true,false,false,0,{OnFinish=function(interrupted, anim)
+					flood:VJ_ACT_PLAYACTIVITY(ACT_ROLL_LEFT,true,false,false)
+				end})
+			end
+		end)
+	else
+		timer.Simple(0,function()
+			if IsValid(flood) then
+				flood:VJ_ACT_PLAYACTIVITY(ACT_ROLL_LEFT,true,false,false)
+			end
+		end)
+	end
+
+	undo.ReplaceEntity(ent,flood)
+	SafeRemoveEntity(inflictor)
+	SafeRemoveEntity(ent)
+end
+---------------------------------------------------------------------------------------------------------------------------------------------
 local overlayTable = {
 	[1] = "models/cpthazama/halo_classic/flood_human_ce_overlay.mdl",
 	[2] = "models/cpthazama/halo_classic/flood_human_ce_overlay.mdl",
 	[3] = "models/cpthazama/halo3/flood_human_valvebiped.mdl",
 }
-function ENT:VJ_CreateFloodMerge(type,ent,mdl,skin,bg)
+function VJ_CreateFloodMerge(type,ent,mdl,skin,bgEnt)
 	local isNPC = ent:IsNPC()
 	if isNPC then
 		local cBounds = ent:GetCollisionBounds()
@@ -34,14 +74,14 @@ function ENT:VJ_CreateFloodMerge(type,ent,mdl,skin,bg)
 	body:Spawn()
 	body:SetParent(ent)
 	body:SetSkin(skin)
-	if bg then
+	if IsValid(bgEnt) then
 		for i = 0,18 do
-			body:SetBodygroup(i,bg[i])
+			body:SetBodygroup(i,bgEnt:GetBodygroup(i))
 		end
 	end
-	if isNPC then
-		ent:SetBonemerge(true)
-		ent:SetBonemergeEntity(body)
-	end
+	-- if isNPC then
+	-- 	ent:SetBonemerge(true)
+	-- 	ent:SetBonemergeEntity(body)
+	-- end
 	ent.Bonemerge = body
 end
