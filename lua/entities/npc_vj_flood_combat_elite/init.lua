@@ -9,7 +9,6 @@ include("vj_base/addons/vj_haloflood_combat.lua")
 ENT.Model = {"models/cpthazama/halo3/flood_elite.mdl"}
 ENT.StartHealth = 165
 ENT.HullType = HULL_HUMAN
-ENT.EntitiesToNoCollide = {"npc_vj_flood_infection","npc_vj_hcf_infection","npc_vj_hcf_infection2"}
 ---------------------------------------------------------------------------------------------------------------------------------------------
 ENT.VJ_NPC_Class = {"CLASS_FLOOD","CLASS_PARASITE"}
 

@@ -9,7 +9,6 @@ ENT.Model = {"models/cpthazama/halo3/flood_infection.mdl"}
 ENT.StartHealth = 50
 ENT.HullType = HULL_TINY
 ENT.GibOnDeathDamagesTable = {"All"}
-ENT.EntitiesToNoCollide = {"npc_vj_flood_infection","npc_vj_hcf_infection","npc_vj_hcf_infection2"}
 ENT.MaxJumpLegalDistance = VJ_Set(200,400)
 ---------------------------------------------------------------------------------------------------------------------------------------------
 ENT.VJ_NPC_Class = {"CLASS_FLOOD","CLASS_PARASITE"}
@@ -127,42 +126,6 @@ function ENT:CustomOnInitialize()
 	end)
 end
 ---------------------------------------------------------------------------------------------------------------------------------------------
-function ENT:FindVerticleSurface(ent)
-	local startPos = self:GetPos() +self:GetUp() *100
-	local targetPos = ent:GetPos()
-	targetPos.z = startPos.z
-	local tr = util.TraceHull({
-		start = startPos,
-		endpos = (targetPos -startPos):GetNormalized() *10000,
-		filter = self,
-		mask = MASK_SOLID_BRUSHONLY,
-		mins = Vector(-8,-8,-8),
-		maxs = Vector(8,8,8),
-	})
-	if tr.Hit then
-		local tr2 = util.TraceHull({
-			start = tr.HitPos,
-			endpos = tr.HitPos +Vector(0,0,-10000),
-			filter = self,
-			mask = MASK_SOLID_BRUSHONLY,
-			mins = Vector(-8,-8,-8),
-			maxs = Vector(8,8,8),
-		})
-		local tr3 = util.TraceHull({
-			start = tr2.HitPos,
-			endpos = tr2.HitPos +Vector(0,0,(ent:GetPos().z -tr2.HitPos:Distance(tr.HitPos)) *1.1),
-			filter = self,
-			mask = MASK_SOLID_BRUSHONLY,
-			mins = Vector(-8,-8,-8),
-			maxs = Vector(8,8,8),
-		})
-		if !tr3.Hit then
-			return tr2.HitPos
-		end
-	end
-	return false
-end
----------------------------------------------------------------------------------------------------------------------------------------------
 function ENT:CustomOnThink()
 	local ent = self:GetEnemy()
 	local dist = IsValid(ent) && self:VJ_GetNearestPointToEntityDistance(ent) or 999999999
@@ -171,10 +134,10 @@ function ENT:CustomOnThink()
 	-- print("-----------------------------------------------")
 	if IsValid(ent) then
 		local cantReach = ((ent:GetPos().z -lastHeight) > 125) or self:IsUnreachable(ent)
-		-- print(self,ent,cantReach)
+		-- print(self,ent,cantReach,(ent:GetPos().z -lastHeight) > 125)
 		if cantReach && self:Visible(ent) then
 			if self.MovementState == 0 && CurTime() > self.LastClimbT then
-				local climbSpot = self:FindVerticleSurface(ent)
+				local climbSpot = VJ_FindVerticleSurface(self,ent)
 				if climbSpot then
 					self.MovementState = 1
 					self.ClimbSpot = climbSpot
@@ -213,50 +176,18 @@ function ENT:CustomOnThink()
 			self:SetPos(self:GetPos() +self:GetForward() *(self:GetPos():Distance(self.ClimbSpot) -10))
 		end
 	elseif self.MovementState == 2 then
-		self:StopMoving()
-		self:SetVelocity(Vector(0,0,2))
-		self:SetMoveType(MOVETYPE_FLY)
-		self:SetGroundEntity(NULL)
-
-		-- local startPos = self:GetPos() +self:GetUp() *(self.ClimbSpeed *self:GetModelScale() *(CurTime() -lastTime))
-		local startPos = self:GetPos() +Vector(0,0,(self.ClimbSpeed *self:GetModelScale() *(CurTime() -lastTime)))
-		local tr = util.TraceHull({
-			start = startPos,
-			endpos = startPos +self:GetForward() *50,
-			filter = self,
-			mask = MASK_SOLID_BRUSHONLY,
-			mins = Vector(-8,-8,-8),
-			maxs = Vector(8,8,8),
-		})
-		self:SetVelocity((self:GetPos() -(startPos)):GetNormalized() *self.ClimbSpeed)
-		-- VJ_CreateTestObject(startPos,Angle(0,0,0),Color(25,0,255),5)
-		-- VJ_CreateTestObject(tr.HitPos,Angle(0,0,0),Color(255,0,0),5)
-		-- VJ_CreateTestObject(tr.HitPos +tr.HitNormal *8,Angle(0,0,0),Color(0,255,34),5)
-
-		local startPos = self:GetPos() +self:GetUp() *10
-		local tr2 = util.TraceHull({
-			start = startPos,
-			endpos = startPos +self:GetForward() *100,
-			filter = self,
-			mask = MASK_SOLID_BRUSHONLY,
-			mins = Vector(-8,-8,-8),
-			maxs = Vector(8,8,8),
-		})
-
-		lastTracePos = tr2.HitPos
-		if !tr2.Hit or tr2.HitSky then
-			-- self:SetPos(self:GetPos() +self:GetForward() *15)
+		local isDone, lastTracePos = VJ_FloodTravelUnique(self)
+		if isDone then
 			self:StopMoving()
 			self:SetLocalVelocity(Vector(0,0,0))
 			self.MovementState = 0
 			self.ClimbSpot = nil
 			self.DisableChasingEnemy = false
 			self:SetMoveType(MOVETYPE_STEP)
-			-- self:SetVelocity(self:GetPos() +self:GetForward() *5 +self:GetUp() *5)
 			self.AnimTbl_IdleStand = {ACT_IDLE}
 			self.NextIdleStandTime = 0
 			self:SetState()
-			self:ForceMoveJump((lastTracePos - self:GetPos()):GetNormal() *200 +Vector(0,0,150))
+			self:ForceMoveJump((lastTracePos -self:GetPos()):GetNormal() *200 +Vector(0,0,150))
 			self.LastClimbT = CurTime() +5
 		end
 	end

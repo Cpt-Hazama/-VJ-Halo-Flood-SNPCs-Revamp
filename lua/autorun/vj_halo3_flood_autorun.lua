@@ -38,7 +38,7 @@ if VJExists == true then
 	local vCat3 = "Halo 3"
 	VJ.AddCategoryInfo(vCat3,{Icon = "vj_icons/halo3_flood.png"})
 	local vCatHW = "Halo Wars"
-	VJ.AddCategoryInfo(vCat3,{Icon = "vj_icons/halo1_flood.png"})
+	VJ.AddCategoryInfo(vCatHW,{Icon = "vj_icons/halowars_flood.png"})
 
 	VJ.AddNPC("Flood Combat Form","npc_vj_hcf_human",vCat1)
 	VJ.AddNPC("Flood Carrier Form","npc_vj_hcf_carrier",vCat1)
@@ -68,6 +68,7 @@ if VJExists == true then
 	VJ.AddNPC("Flood Egg Sack","npc_vj_flood_egg",vCat3)
 
 	VJ.AddNPC("Flood Hive Mind","npc_vj_flood_hivemind",vCatHW)
+	VJ.AddNPC("Flood Swarm Form","npc_vj_flood_swarm",vCatHW)
 	VJ.AddNPC("Flood Mortar","npc_vj_flood_mortar",vCatHW)
 	VJ.AddNPC("Flood Abomination Form","npc_vj_flood_abomination",vCatHW)
 	VJ.AddNPC("Flood Seeder Form","npc_vj_flood_seeder",vCatHW)
@@ -87,6 +88,13 @@ if VJExists == true then
 	game.AddParticles("particles/cpt_flood_mortar1.pcf")
 	game.AddParticles("particles/cpt_flood_mortar2.pcf")
 	game.AddParticles("particles/cpt_flood_shield.pcf")
+
+	hook.Add("ShouldCollide","VJ_HaloFlood_NoCollide",function(ent1,ent2)
+		if ent1.VJ_IsFloodInfectionForm && ent2.VJ_IsFloodForm or ent2.VJ_IsFloodInfectionForm && ent1.VJ_IsFloodForm then
+			return false
+		end
+		return true
+	end)
 
 	local ENT = ENT or FindMetaTable("Entity")
 	local NPC = FindMetaTable("NPC")

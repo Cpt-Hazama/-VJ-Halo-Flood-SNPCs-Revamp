@@ -8,7 +8,6 @@ include('shared.lua')
 ENT.Model = {"models/cpthazama/halo3/flood_carrier.mdl"}
 ENT.StartHealth = 1
 ENT.HullType = HULL_HUMAN
-ENT.EntitiesToNoCollide = {"npc_vj_flood_infection","npc_vj_hcf_infection","npc_vj_hcf_infection2"}
 ENT.MaxJumpLegalDistance = VJ_Set(1200,2000)
 ---------------------------------------------------------------------------------------------------------------------------------------------
 ENT.VJ_NPC_Class = {"CLASS_FLOOD","CLASS_PARASITE"}

@@ -5,105 +5,64 @@ include('shared.lua')
 	No parts of this code or any of its contents may be reproduced, copied, modified or adapted,
 	without the prior written consent of the author, unless otherwise indicated for stand-alone materials.
 -----------------------------------------------*/
-ENT.Model = {"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"}
-ENT.StartHealth = 1
-ENT.HullType = HULL_HUMAN
-ENT.EntitiesToNoCollide = {"npc_vj_flood_infection","npc_vj_hcf_infection","npc_vj_hcf_infection2"}
-ENT.MaxJumpLegalDistance = VJ_Set(1200,2000)
+ENT.Model = {"models/cpthazama/halowars2/flood_seeder.mdl"}
+ENT.StartHealth = 250
+ENT.HullType = HULL_WIDE_SHORT
+ENT.MovementType = VJ_MOVETYPE_AERIAL
+ENT.TurningUseAllAxis = true
+
+ENT.Aerial_FlyingSpeed_Calm = 500 -- The speed it should fly with, when it's wandering, moving slowly, etc. | Basically walking compared to ground SNPCs
+ENT.Aerial_FlyingSpeed_Alerted = 750 -- The speed it should fly with, when it's chasing an enemy, moving away quickly, etc. | Basically running compared to ground SNPCs
+ENT.Aerial_AnimTbl_Calm = ACT_FLY -- Animations it plays when it's wandering around while idle
+ENT.Aerial_AnimTbl_Alerted = ACT_FLY -- Animations it plays when it's moving while alerted
 ---------------------------------------------------------------------------------------------------------------------------------------------
 ENT.VJ_NPC_Class = {"CLASS_FLOOD","CLASS_PARASITE"}
 
 ENT.VJC_Data = {
     CameraMode = 1,
     ThirdP_Offset = Vector(0, 0, 0),
-    FirstP_Bone = "head",
-    FirstP_Offset = Vector(2, 0, 5)
+    FirstP_Bone = "bone_COG",
+    FirstP_Offset = Vector(5, 0, 0)
 }
 
 ENT.BloodColor = "Yellow"
-ENT.CustomBlood_Particle = {"cpt_blood_flood","cpt_blood_flood","cpt_blood_flood","vj_impact1_red"}
+ENT.CustomBlood_Particle = {"cpt_blood_flood","cpt_blood_flood","cpt_blood_flood","vj_impact1_green"}
 
-ENT.HasMeleeAttack = true
-ENT.MeleeAttackDistance = 70
-ENT.MeleeAttackDamageDistance = 90
-ENT.AnimTbl_MeleeAttack = {ACT_MELEE_ATTACK1,ACT_MELEE_ATTACK2}
-ENT.TimeUntilMeleeAttackDamage = false
-ENT.MeleeAttackDamageType = DMG_SLASH
-ENT.MeleeAttackAnimationFaceEnemy = false
+ENT.HasMeleeAttack = false
 
-ENT.MeleeAttackKnockBack_Forward1 = 350
-ENT.MeleeAttackKnockBack_Forward2 = 450
-ENT.MeleeAttackKnockBack_Up1 = 220
-ENT.MeleeAttackKnockBack_Up2 = 220
-ENT.MeleeAttackKnockBack_Right1 = 0
-ENT.MeleeAttackKnockBack_Right2 = 0
+ENT.HasRangeAttack = true -- Should the SNPC have a range attack?
+ENT.AnimTbl_RangeAttack = {"vjges_fire"} -- Range Attack Animations
+ENT.RangeAttackAnimationStopMovement = false
+ENT.RangeAttackEntityToSpawn = "obj_vj_flood_spike" -- The entity that is spawned when range attacking
+ENT.RangeDistance = 1500 -- This is how far away it can shoot
+ENT.RangeToMeleeDistance = 0 -- How close does it have to be until it uses melee?
+ENT.TimeUntilRangeAttackProjectileRelease = 0.2 -- How much time until the projectile code is ran?
+ENT.RangeAttackPos_Up = 0 -- Up/Down spawning position for range attack
+ENT.RangeAttackPos_Forward = 20 -- Forward/ Backward spawning position for range attack
+ENT.NextRangeAttackTime = 0.75 -- How much time until it can use a range attack?
+ENT.NextRangeAttackTime_DoRand = 1.25 -- False = Don't use random time | Number = Picks a random number between the regular timer and this timer
 
-ENT.HasDeathAnimation = true
-ENT.AnimTbl_Death = {ACT_DIESIMPLE,ACT_DIE_LEFTSIDE,ACT_DIE_RIGHTSIDE}
-ENT.DeathAnimationChance = 5
+ENT.NoChaseAfterCertainRange = true -- Should the SNPC not be able to chase when it's between number x and y?
+ENT.NoChaseAfterCertainRange_FarDistance = "UseRangeDistance" -- How far until it can chase again? | "UseRangeDistance" = Use the number provided by the range attack instead
+ENT.NoChaseAfterCertainRange_CloseDistance = "UseRangeDistance" -- How near until it can chase again? | "UseRangeDistance" = Use the number provided by the range attack instead
+ENT.NoChaseAfterCertainRange_Type = "OnlyRange" -- "Regular" = Default behavior | "OnlyRange" = Only does it if it's able to range attack
 
-ENT.DisableFootStepSoundTimer = true
-ENT.HasExtraMeleeAttackSounds = true
+ENT.IdleAlwaysWander = true
+
 ENT.GeneralSoundPitch1 = 100
-
-ENT.SoundTbl_FootStep = {}
-ENT.SoundTbl_MeleeAttackMiss = {
-	"vj_halo3flood/shared/melee_swish1.wav",
-	"vj_halo3flood/shared/melee_swish3.wav",
-	"vj_halo3flood/shared/melee_swish5.wav",
-	"vj_halo3flood/shared/melee_swish6.wav",
-	"vj_halo3flood/shared/melee_swish7.wav",
-	"vj_halo3flood/shared/melee_swish8.wav",
-}
-ENT.SoundTbl_Impact = {
-	"vj_halo3flood/damage01.mp3",
-	"vj_halo3flood/damage02.mp3",
-	"vj_halo3flood/damage03.mp3",
-}
 ---------------------------------------------------------------------------------------------------------------------------------------------
 function ENT:CustomOnInitialize()
-	self:SetCollisionBounds(Vector(15,15,60),Vector(-15,-15,0))
+	self:SetCollisionBounds(Vector(23, 23, 40), Vector(-23, -23, -40))
 
-	timer.Simple(VJ_GetVarInt("vj_halo_developmenttime"),function()
-		if IsValid(self) then
-			VJ_ReplaceEntity("npc_vj_flood_carrier",self,function(old,new)
-				for i = 0, old:GetBoneCount() -1 do
-					local bonePos = old:GetBonePosition(i)
-					ParticleEffect("cpt_blood_flood",bonePos,VJ_Ang0,nil)
-					VJ_PlaySound(3,bonePos,{"vj_gib/gibbing1.wav","vj_gib/gibbing2.wav","vj_gib/gibbing3.wav"},55)
-				end
-			end)
-		end
-	end)
-end
----------------------------------------------------------------------------------------------------------------------------------------------
-function ENT:CustomOnAcceptInput(key,activator,caller,data)
-	Entity(1):ChatPrint(key)
-	if key == "event_emit step" then
-		VJ_CreateStepSound(self,32,self.SoundTbl_FootStep,true)
-	elseif key == "event_mattack" then
-		self.MeleeAttackDamage = 18
-		self.HasMeleeAttackKnockBack = false
-		self:MeleeAttackCode()
-	elseif key == "event_pattack" then
-		self.MeleeAttackDamage = 12
-		self.HasMeleeAttackKnockBack = true
-		self:MeleeAttackCode()
-	end
-end
----------------------------------------------------------------------------------------------------------------------------------------------
-function ENT:CustomOnChangeActivity(newAct)
-	if newAct == ACT_LAND then
-		VJ_CreateStepSound(self,32,self.SoundTbl_FootStep,true)
-	end
+	timer.Simple(0,function() self:SetPos(self:GetPos() +Vector(0,0,100)) end)
 end
 ---------------------------------------------------------------------------------------------------------------------------------------------
 function ENT:CustomOnThink()
 	local ent = self:GetEnemy()
-	if IsValid(ent) then
-		local dist = ent:GetPos():Distance(self:GetPos())
+	local isClose = IsValid(ent) && self.LatestEnemyDistance <= self.RangeDistance
 
-	end
+	self.ConstantlyFaceEnemy = isClose
+	self.Aerial_AnimTbl_Alerted = isClose && ACT_FLY or ACT_GLIDE
 end
 /*-----------------------------------------------
 	*** Copyright (c) 2012-2021 by DrVrej, All rights reserved. ***

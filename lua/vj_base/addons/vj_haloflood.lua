@@ -9,6 +9,95 @@ local NPC = FindMetaTable("NPC")
 local SWEP = FindMetaTable("Weapon")
 local PLY = FindMetaTable("Player")
 ---------------------------------------------------------------------------------------------------------------------------------------------
+function VJ_FloodTravelUnique(self,speed,targetPos)
+	local lastTime = CurTime()
+	local lastTracePos = self:GetPos()
+	local reachedGoal = false
+	speed = speed or self.ClimbSpeed
+
+	self:StopMoving()
+	self:SetVelocity(Vector(0,0,2))
+	self:SetMoveType(MOVETYPE_FLY)
+	self:SetGroundEntity(NULL)
+
+	local startPos = self:GetPos() +Vector(0,0,(speed *self:GetModelScale() *(CurTime() -lastTime)))
+	local tr = util.TraceHull({
+		start = startPos,
+		endpos = targetPos or (startPos +self:GetForward() *50),
+		filter = self,
+		mask = MASK_SOLID_BRUSHONLY,
+		mins = Vector(-8,-8,-8),
+		maxs = Vector(8,8,8),
+	})
+
+	local setAngs = self:GetFaceAngle((tr.HitPos -self:GetPos()):Angle())
+	self:SetIdealYawAndUpdate(setAngs.y)
+	self:SetVelocity((self:GetPos() -(startPos)):GetNormalized() *speed)
+	-- VJ_CreateTestObject(startPos,Angle(0,0,0),Color(25,0,255),5)
+	-- VJ_CreateTestObject(tr.HitPos,Angle(0,0,0),Color(255,0,0),5)
+	-- VJ_CreateTestObject(tr.HitPos +tr.HitNormal *8,Angle(0,0,0),Color(0,255,34),5)
+
+	local startPos = self:GetPos() +self:GetUp() *10
+	local tr2 = util.TraceHull({
+		start = startPos,
+		endpos = startPos +self:GetForward() *100,
+		filter = self,
+		mask = MASK_SOLID_BRUSHONLY,
+		mins = Vector(-8,-8,-8),
+		maxs = Vector(8,8,8),
+	})
+
+	lastTracePos = tr2.HitPos
+	if !tr2.Hit or tr2.HitSky then
+		reachedGoal = true
+	end
+
+	return reachedGoal, lastTracePos
+end
+---------------------------------------------------------------------------------------------------------------------------------------------
+function VJ_FindVerticleSurface(self,ent)
+	local startPos = self:GetPos() +Vector(0,0,100)
+	local targetPos = ent:GetPos()
+	targetPos.z = startPos.z
+	local tr = util.TraceHull({
+		start = startPos,
+		endpos = targetPos,
+		filter = self,
+		mask = MASK_SOLID_BRUSHONLY,
+		mins = Vector(-8,-8,-8),
+		maxs = Vector(8,8,8),
+	})
+	-- util.ParticleTracerEx("vortigaunt_beam", startPos, targetPos, false, self:EntIndex(), 0)
+	-- util.ParticleTracerEx("Weapon_Combine_Ion_Cannon_Beam", tr.StartPos, tr.HitPos, false, self:EntIndex(), 0)
+	-- VJ_CreateTestObject(tr.HitPos,Angle(0,0,0),Color(255,0,200),5)
+	if tr.Hit then
+		local tr2 = util.TraceHull({
+			start = tr.HitPos,
+			endpos = tr.HitPos +Vector(0,0,-10000),
+			filter = self,
+			mask = MASK_SOLID_BRUSHONLY,
+			mins = Vector(-8,-8,-8),
+			maxs = Vector(8,8,8),
+		})
+		local tr3 = util.TraceHull({
+			start = tr2.HitPos,
+			endpos = tr2.HitPos +Vector(0,0,(ent:GetPos().z -tr2.HitPos:Distance(tr.HitPos)) *1.1),
+			filter = self,
+			mask = MASK_SOLID_BRUSHONLY,
+			mins = Vector(-8,-8,-8),
+			maxs = Vector(8,8,8),
+		})
+		-- util.ParticleTracerEx("Weapon_Combine_Ion_Cannon_Beam", tr2.StartPos, tr3.HitPos, false, self:EntIndex(), 0)
+		-- util.ParticleTracerEx("Weapon_Combine_Ion_Cannon_Beam", tr2.StartPos, tr3.HitPos, false, self:EntIndex(), 0)
+		-- VJ_CreateTestObject(tr2.HitPos,Angle(0,0,0),Color(0,225,255),5)
+		-- VJ_CreateTestObject(tr3.HitPos,Angle(0,0,0),Color(229,255,0),5)
+		if !tr3.Hit then
+			return tr2.HitPos
+		end
+	end
+	return false
+end
+---------------------------------------------------------------------------------------------------------------------------------------------
 function VJ_FloodInfection(ent,inflictor,attacker)
 	local isRagdoll = !(ent:IsNPC() or ent:IsPlayer())
 
