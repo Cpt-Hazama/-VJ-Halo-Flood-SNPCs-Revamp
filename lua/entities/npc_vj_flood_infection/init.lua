@@ -72,7 +72,8 @@ ENT.SoundTbl_Impact = {
 ENT.SoundTbl_LeapAttack = {"vj_halo3flood/infection/infector_bite1.mp3","vj_halo3flood/infection/infector_bite2.mp3","vj_halo3flood/infection/infector_bite3.mp3","vj_halo3flood/infection/infector_bite4.mp3","vj_halo3flood/infection/infector_bite5.mp3","vj_halo3flood/infection/infector_bite6.mp3","vj_halo3flood/infection/infector_bite7.mp3","vj_halo3flood/infection/infector_bite8.mp3","vj_halo3flood/infection/infector_bite9.mp3","vj_halo3flood/infection/infector_bite10.mp3","vj_halo3flood/infection/infector_bite11.mp3"}
 ENT.SoundTbl_Death = {"vj_halo3flood/infection/pop1.mp3","vj_halo3flood/infection/pop2.mp3","vj_halo3flood/infection/pop3.mp3","vj_halo3flood/infection/pop4.mp3","vj_halo3flood/infection/pop5.mp3"}
 
-ENT.MovementState = 0 -- 0 = Normal, 1 = Looking for climb spot, 2 = Climbing
+ENT.MovementState = 0 -- 0 = Normal AI, 1 = Looking for climb spot, 2 = Climbing
+ENT.CorpseState = 0 -- 0 = Normal AI, 1 = Moving to corpse, 2 = Infecting corpse
 ENT.ClimbSpeed = 8
 ENT.ClimbSpot = nil
 ENT.LastClimbT = 0
@@ -103,6 +104,9 @@ function ENT:CustomOnInitialize()
 
 	self:ManipulateBoneJiggle(18,1)
 
+	self.SelectedCorpse = nil
+	self.NextCorpseLookT = CurTime() +math.Rand(1,3)
+
 	local hookName = "VJ_HaloFloodInfection_Player_" .. self:EntIndex()
 	hook.Add("PlayerDeath",hookName,function(victim,inflictor,attacker)
 		if !IsValid(self) then
@@ -130,20 +134,72 @@ function ENT:CustomOnThink()
 	local ent = self:GetEnemy()
 	local dist = IsValid(ent) && self:VJ_GetNearestPointToEntityDistance(ent) or 999999999
 	local lastHeight = self:GetPos().z
+	local moveState = self.MovementState
+	local corpseState = self.CorpseState
+
+	if moveState == 0 then
+		local corpse = self.SelectedCorpse
+		if !IsValid(corpse) then
+			if CurTime() > self.NextCorpseLookT then
+				local closeDist = 999999999
+				local closeEnt = nil
+				for _,v in ipairs(ents.FindByClass("prop_ragdoll")) do
+					local dist2 = self:VJ_GetNearestPointToEntityDistance(v)
+					if (dist2 < 650 && ((IsValid(ent) && dist2 < dist) or true)) /*&& v.IsVJBaseCorpse*/ && dist2 <= closeDist && self:Visible(v) then
+						closeDist = dist2
+						closeEnt = v
+					end
+				end
+				if IsValid(closeEnt) then
+					self.SelectedCorpse = closeEnt
+					self.CorpseState = 1
+					self.DisableChasingEnemy = true
+				end
+				self.NextCorpseLookT = CurTime() +math.Rand(3,6)
+			end
+		else
+			local infectDist = 28
+			local distPos = corpse:GetPos()
+			distPos.z = lastHeight
+			local dist2 = self:GetPos():Distance(distPos)
+			if corpseState == 1 then
+				self:SetLastPosition(corpse:GetPos() +corpse:OBBCenter())
+				self:VJ_TASK_GOTO_LASTPOS("TASK_RUN_PATH")
+				if dist2 <= infectDist then
+					self.CorpseState = 2
+				end
+			elseif corpseState == 2 then
+				if self:IsBusy() then return end
+				self:VJ_ACT_PLAYACTIVITY(ACT_SPECIAL_ATTACK1,true,false,false,0,{OnFinish=function(interrupted, anim)
+					if IsValid(corpse) then
+						if dist2 <= infectDist then
+							VJ_FloodInfection(corpse,self)
+						else
+							self.CorpseState = 1
+						end
+					else
+						self.CorpseState = 0
+					end
+				end})
+			end
+		end
+	end
+
+	if corpseState > 0 then return end
 
 	-- print("-----------------------------------------------")
 	if IsValid(ent) then
 		local cantReach = ((ent:GetPos().z -lastHeight) > 125) or self:IsUnreachable(ent)
 		-- print(self,ent,cantReach,(ent:GetPos().z -lastHeight) > 125)
 		if cantReach && self:Visible(ent) then
-			if self.MovementState == 0 && CurTime() > self.LastClimbT then
+			if moveState == 0 && CurTime() > self.LastClimbT then
 				local climbSpot = VJ_FindVerticleSurface(self,ent)
 				if climbSpot then
 					self.MovementState = 1
 					self.ClimbSpot = climbSpot
 				end
 			end
-		elseif !cantReach && self.MovementState == 1 then
+		elseif !cantReach && moveState == 1 then
 			self.MovementState = 0
 			self.ClimbSpot = nil
 			self:StopMoving()

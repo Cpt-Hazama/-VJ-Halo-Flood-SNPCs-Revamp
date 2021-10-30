@@ -98,18 +98,47 @@ function VJ_FindVerticleSurface(self,ent)
 	return false
 end
 ---------------------------------------------------------------------------------------------------------------------------------------------
+local translationClass = {
+	["npc_vj_hcf_infection"] = {Human="npc_vj_hcf_human",Elite="npc_vj_hcf_elite"}, -- Halo 1
+	["npc_vj_hcf_infection2"] = {Human="npc_vj_hcf_human2",Elite="npc_vj_hcf_elite2"}, -- Halo 2
+	["npc_vj_flood_infection"] = {Human="npc_vj_flood_combat",Brute="npc_vj_flood_combat_brute",Elite="npc_vj_flood_combat_elite"}, -- Halo 3
+	["npc_vj_hwf_infection"] = {Human="npc_vj_hwf_combat",Brute="npc_vj_hwf_combat_brute",Elite="npc_vj_hwf_combat_elite"} -- Halo Wars
+}
+--
 function VJ_FloodInfection(ent,inflictor,attacker)
 	local isRagdoll = !(ent:IsNPC() or ent:IsPlayer())
+	local isFlood = isRagdoll && ent.IsFloodModel
 
-	local flood = ents.Create("npc_vj_flood_combat")
+	local classData = translationClass[inflictor:GetClass()]
+	local spawnClass = classData.Human
+	if isRagdoll && ent.FloodClass then
+		for k,v in pairs(classData) do
+			if ent.FloodClass == v then
+				spawnClass = v
+				break
+			end
+		end
+	end
+
+	local ang = ent:GetAngles()
+	if isRagdoll then
+		local bonePos, boneAng = ent:GetBonePosition(0)
+		ang = Angle(ang.x,boneAng.y,ang.z)
+	end
+	local flood = ents.Create(spawnClass)
 	flood:SetPos(ent:GetPos())
-	flood:SetAngles(ent:GetAngles())
+	flood:SetAngles(ang)
 	flood:Spawn()
+	if isFlood then
+		flood:SetSkin(ent:GetSkin())
+	end
 
 	local wep = !isRagdoll && ent:GetActiveWeapon()
 	if IsValid(wep) && wep.IsVJBaseWeapon then
 		flood:Give(wep:GetClass())
 	end
+
+	ent.HasDeathRagdoll = false
 
 	local foundBone = (ent:LookupBone("ValveBiped.Bip01_Pelvis") != nil)
 	if foundBone then
@@ -142,11 +171,12 @@ local overlayTable = {
 	[1] = "models/cpthazama/halo_classic/flood_human_ce_overlay.mdl",
 	[2] = "models/cpthazama/halo_classic/flood_human_ce_overlay.mdl",
 	[3] = "models/cpthazama/halo3/flood_human_valvebiped.mdl",
+	[4] = "models/cpthazama/halo_classic/flood_human_ce_overlay.mdl",
 }
 function VJ_CreateFloodMerge(type,ent,mdl,skin,bgEnt)
 	local isNPC = ent:IsNPC()
 	if isNPC then
-		local cBounds = ent:GetCollisionBounds()
+		local cBounds = select(2,ent:GetCollisionBounds())
 		ent:SetModel(overlayTable[type] or "models/cpthazama/halo3/flood_human_valvebiped.mdl")
 		ent:SetCollisionBounds(Vector(cBounds.x,cBounds.y,cBounds.z),Vector(-cBounds.x,-cBounds.y,0))
 	end

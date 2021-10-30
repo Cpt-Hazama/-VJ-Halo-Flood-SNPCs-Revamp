@@ -75,6 +75,11 @@ if VJExists == true then
 	VJ.AddNPC("Flood Spawner Form","npc_vj_flood_spawner",vCatHW)
 	VJ.AddNPC("Flood Infester Form","npc_vj_flood_infester",vCatHW)
 
+	VJ.AddNPC("Flood Infection Form","npc_vj_hwf_infection",vCatHW)
+	VJ.AddNPC("Flood Combat Form","npc_vj_hwf_combat",vCatHW)
+	VJ.AddNPC("Flood Combat Jiralhanae Form","npc_vj_hwf_combat_brute",vCatHW)
+	VJ.AddNPC("Flood Combat Sangheili Form","npc_vj_hwf_combat_elite",vCatHW)
+
 	if SERVER then
 		-- include('vj_base/extensions/vj_ai_extension.lua')
 		include('vj_base/addons/vj_haloflood.lua')

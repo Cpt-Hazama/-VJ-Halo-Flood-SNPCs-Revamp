@@ -5,7 +5,7 @@ include('shared.lua')
 	No parts of this code or any of its contents may be reproduced, copied, modified or adapted,
 	without the prior written consent of the author, unless otherwise indicated for stand-alone materials.
 -----------------------------------------------*/
-ENT.Model = {"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"}
+ENT.Model = {"models/cpthazama/halo_classic/flood_elite_ce.mdl"}
 ENT.StartHealth = 1
 ENT.HullType = HULL_HUMAN
 ENT.MaxJumpLegalDistance = VJ_Set(1200,2000)

@@ -286,11 +286,10 @@ function ENT:CustomOnDeath_AfterCorpseSpawned(dmginfo,hitgroup,GetCorpse)
 
 	if self.CanRevive && math.random(1,self.RevivalChance) == 1 then
 	-- if self.CanRevive then
-		local class = self:GetClass()
 		timer.Simple(math.random(8,30),function()
 		-- timer.Simple(2,function()
 			if IsValid(GetCorpse) && !GetCorpse.Dead then
-				local flood = ents.Create(class)
+				local flood = ents.Create(GetCorpse.FloodClass)
 				flood:SetPos(GetCorpse:GetPos())
 				flood:SetAngles(GetCorpse:GetAngles())
 				flood.Skin = GetCorpse:GetSkin()
@@ -312,6 +311,7 @@ function ENT:CustomOnDeath_AfterCorpseSpawned(dmginfo,hitgroup,GetCorpse)
 	GetCorpse.BloodEffect = self.CustomBlood_Particle
 	GetCorpse.BodyHealth = maxHP *2.5
 	GetCorpse.BodyHealthMax = maxHP *2.5
+	GetCorpse.FloodClass = self:GetClass()
 	GetCorpse.Dead = false
 	GetCorpse.CanRevive = self.CanRevive
 	GetCorpse.DeathSound = self.SoundTbl_Death
