@@ -81,7 +81,7 @@ function VJ_FindVerticleSurface(self,ent)
 		})
 		local tr3 = util.TraceHull({
 			start = tr2.HitPos,
-			endpos = tr2.HitPos +Vector(0,0,(ent:GetPos().z -tr2.HitPos:Distance(tr.HitPos)) *1.1),
+			endpos = tr2.HitPos +Vector(0,0,(tr2.HitPos:Distance(tr.HitPos)) *1.1),
 			filter = self,
 			mask = MASK_SOLID_BRUSHONLY,
 			mins = Vector(-8,-8,-8),
@@ -91,6 +91,7 @@ function VJ_FindVerticleSurface(self,ent)
 		-- util.ParticleTracerEx("Weapon_Combine_Ion_Cannon_Beam", tr2.StartPos, tr3.HitPos, false, self:EntIndex(), 0)
 		-- VJ_CreateTestObject(tr2.HitPos,Angle(0,0,0),Color(0,225,255),5)
 		-- VJ_CreateTestObject(tr3.HitPos,Angle(0,0,0),Color(229,255,0),5)
+		-- print("Dist",(tr2.HitPos:Distance(tr.HitPos)) *1.1,"Hit",tr3.Hit)
 		if !tr3.Hit then
 			return tr2.HitPos
 		end

@@ -103,8 +103,10 @@ function ENT:CustomOnInitialize()
 	self:CapabilitiesAdd(bit.bor(CAP_MOVE_JUMP,CAP_MOVE_CLIMB))
 
 	self:ManipulateBoneJiggle(18,1)
+	self:SetCustomCollisionCheck(true)
 
 	self.SelectedCorpse = nil
+	self.HadCorpse = false
 	self.NextCorpseLookT = CurTime() +math.Rand(1,3)
 
 	local hookName = "VJ_HaloFloodInfection_Player_" .. self:EntIndex()
@@ -139,7 +141,18 @@ function ENT:CustomOnThink()
 
 	if moveState == 0 then
 		local corpse = self.SelectedCorpse
+		-- print("--------------------------------------------------------------------------")
+		-- print(self)
+		-- print("Disable Chasing - ",self.DisableChasingEnemy)
+		-- print("Corpse State - ",corpseState)
+		-- print("Corpse - ",corpse)
+		-- print("Enemy - ",ent)
 		if !IsValid(corpse) then
+			if self.HadCorpse != false then
+				self.DisableChasingEnemy = false
+				self.CorpseState = 0
+				self.HadCorpse = false
+			end
 			if CurTime() > self.NextCorpseLookT then
 				local closeDist = 999999999
 				local closeEnt = nil
@@ -158,6 +171,7 @@ function ENT:CustomOnThink()
 				self.NextCorpseLookT = CurTime() +math.Rand(3,6)
 			end
 		else
+			self.HadCorpse = true
 			local infectDist = 28
 			local distPos = corpse:GetPos()
 			distPos.z = lastHeight
@@ -178,6 +192,7 @@ function ENT:CustomOnThink()
 							self.CorpseState = 1
 						end
 					else
+						self.DisableChasingEnemy = false
 						self.CorpseState = 0
 					end
 				end})

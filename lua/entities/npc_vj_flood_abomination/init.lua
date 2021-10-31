@@ -5,9 +5,9 @@ include('shared.lua')
 	No parts of this code or any of its contents may be reproduced, copied, modified or adapted,
 	without the prior written consent of the author, unless otherwise indicated for stand-alone materials.
 -----------------------------------------------*/
-ENT.Model = {"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"}
-ENT.StartHealth = 1
-ENT.HullType = HULL_HUMAN
+ENT.Model = {"models/cpthazama/halowars2/flood_abomination.mdl"}
+ENT.StartHealth = 7500
+ENT.HullType = HULL_LARGE
 ENT.MaxJumpLegalDistance = VJ_Set(1200,2000)
 ---------------------------------------------------------------------------------------------------------------------------------------------
 ENT.VJ_NPC_Class = {"CLASS_FLOOD","CLASS_PARASITE"}
@@ -20,32 +20,30 @@ ENT.VJC_Data = {
 }
 
 ENT.BloodColor = "Yellow"
-ENT.CustomBlood_Particle = {"cpt_blood_flood","cpt_blood_flood","cpt_blood_flood","vj_impact1_red"}
+ENT.CustomBlood_Particle = {"cpt_blood_flood"}
 
 ENT.HasMeleeAttack = true
-ENT.MeleeAttackDistance = 70
-ENT.MeleeAttackDamageDistance = 90
-ENT.AnimTbl_MeleeAttack = {ACT_MELEE_ATTACK1,ACT_MELEE_ATTACK2}
+ENT.MeleeAttackDamage = 225
+ENT.MeleeAttackDistance = 250
+ENT.MeleeAttackDamageDistance = 625
+ENT.AnimTbl_MeleeAttack = {ACT_MELEE_ATTACK1}
 ENT.TimeUntilMeleeAttackDamage = false
-ENT.MeleeAttackDamageType = DMG_SLASH
+ENT.MeleeAttackDamageType = bit.bor(DMG_SLASH,DMG_CRUSH)
 ENT.MeleeAttackAnimationFaceEnemy = false
-
-ENT.MeleeAttackKnockBack_Forward1 = 350
-ENT.MeleeAttackKnockBack_Forward2 = 450
-ENT.MeleeAttackKnockBack_Up1 = 220
-ENT.MeleeAttackKnockBack_Up2 = 220
-ENT.MeleeAttackKnockBack_Right1 = 0
-ENT.MeleeAttackKnockBack_Right2 = 0
-
-ENT.HasDeathAnimation = true
-ENT.AnimTbl_Death = {ACT_DIESIMPLE,ACT_DIE_LEFTSIDE,ACT_DIE_RIGHTSIDE}
-ENT.DeathAnimationChance = 5
 
 ENT.DisableFootStepSoundTimer = true
 ENT.HasExtraMeleeAttackSounds = true
+
 ENT.GeneralSoundPitch1 = 100
 
-ENT.SoundTbl_FootStep = {}
+ENT.SoundTbl_FootStep = {
+	"vj_halo3flood/tank/tank_melee_hit7.wav",
+	"vj_halo3flood/tank/tank_melee_hit8.wav",
+	"vj_halo3flood/tank/tank_melee_hit9.wav",
+	"vj_halo3flood/tank/tank_melee_hit10.wav",
+	"vj_halo3flood/tank/tank_melee_hit11.wav",
+	"vj_halo3flood/tank/tank_melee_hit12.wav",
+}
 ENT.SoundTbl_MeleeAttackMiss = {
 	"vj_halo3flood/shared/melee_swish1.wav",
 	"vj_halo3flood/shared/melee_swish3.wav",
@@ -61,47 +59,19 @@ ENT.SoundTbl_Impact = {
 }
 ---------------------------------------------------------------------------------------------------------------------------------------------
 function ENT:CustomOnInitialize()
-	self:SetCollisionBounds(Vector(15,15,60),Vector(-15,-15,0))
+	self:SetCollisionBounds(Vector(85,85,475),Vector(-85,-85,0))
 
-	timer.Simple(VJ_GetVarInt("vj_halo_developmenttime"),function()
-		if IsValid(self) then
-			VJ_ReplaceEntity("npc_vj_flood_carrier",self,function(old,new)
-				for i = 0, old:GetBoneCount() -1 do
-					local bonePos = old:GetBonePosition(i)
-					ParticleEffect("cpt_blood_flood",bonePos,VJ_Ang0,nil)
-					VJ_PlaySound(3,bonePos,{"vj_gib/gibbing1.wav","vj_gib/gibbing2.wav","vj_gib/gibbing3.wav"},55)
-				end
-			end)
-		end
-	end)
+	self:SetCustomCollisionCheck(true)
 end
 ---------------------------------------------------------------------------------------------------------------------------------------------
 function ENT:CustomOnAcceptInput(key,activator,caller,data)
-	Entity(1):ChatPrint(key)
-	if key == "event_emit step" then
-		VJ_CreateStepSound(self,32,self.SoundTbl_FootStep,true)
-	elseif key == "event_mattack" then
-		self.MeleeAttackDamage = 18
-		self.HasMeleeAttackKnockBack = false
+	if key == "step" then
+		VJ_EmitSound(self,VJ_PICK(self.SoundTbl_FootStep),95,math.random(55,65))
+		util.ScreenShake(self:GetPos(),16,100,2,1800)
+	elseif key == "melee" then
 		self:MeleeAttackCode()
-	elseif key == "event_pattack" then
-		self.MeleeAttackDamage = 12
-		self.HasMeleeAttackKnockBack = true
-		self:MeleeAttackCode()
-	end
-end
----------------------------------------------------------------------------------------------------------------------------------------------
-function ENT:CustomOnChangeActivity(newAct)
-	if newAct == ACT_LAND then
-		VJ_CreateStepSound(self,32,self.SoundTbl_FootStep,true)
-	end
-end
----------------------------------------------------------------------------------------------------------------------------------------------
-function ENT:CustomOnThink()
-	local ent = self:GetEnemy()
-	if IsValid(ent) then
-		local dist = ent:GetPos():Distance(self:GetPos())
-
+	elseif key == "melee_impact" then
+		util.ScreenShake(self:GetPos(),16,100,4,2500)
 	end
 end
 /*-----------------------------------------------

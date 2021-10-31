@@ -46,6 +46,8 @@ ENT.RevivalChance = 4
 function ENT:CustomOnInitialize()
 	self.Default_AnimTbl_MeleeAttack = self.AnimTbl_MeleeAttack
 
+	self:SetCustomCollisionCheck(true)
+
 	if self.OnInit then
 		if self:OnInit() == false then return end
 	end

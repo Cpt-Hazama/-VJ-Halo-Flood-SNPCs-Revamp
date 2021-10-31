@@ -53,6 +53,8 @@ ENT.GeneralSoundPitch1 = 100
 function ENT:CustomOnInitialize()
 	self:SetCollisionBounds(Vector(23, 23, 40), Vector(-23, -23, 0))
 
+	self:SetCustomCollisionCheck(true)
+
 	timer.Simple(0,function() self:SetPos(self:GetPos() +Vector(0,0,100)) end)
 end
 ---------------------------------------------------------------------------------------------------------------------------------------------

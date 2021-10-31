@@ -63,6 +63,8 @@ ENT.SoundTbl_Impact = {
 function ENT:CustomOnInitialize()
 	self:SetCollisionBounds(Vector(15,15,60),Vector(-15,-15,0))
 
+	self:SetCustomCollisionCheck(true)
+
 	timer.Simple(VJ_GetVarInt("vj_halo_developmenttime"),function()
 		if IsValid(self) then
 			VJ_ReplaceEntity("npc_vj_flood_carrier",self,function(old,new)
